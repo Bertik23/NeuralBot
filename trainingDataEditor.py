@@ -22,7 +22,7 @@ def makeTrainingData(replaysPath, savePath):
     y = []
     for replay in replays:
         try:
-            a, b = makeTrainingDataFromReplay(replay, savePath)
+            a, b = makeTrainingDataFromReplay(f"{replaysPath}/{replay}", savePath)
             x.extend(a)
             y.extend(b)
         except Exception as e:

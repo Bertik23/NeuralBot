@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.optimizers import Adam
 
 import trainingDataEditor
 import random
@@ -26,7 +27,7 @@ for out in outputs:
 model = keras.Model(inputs=modelInput,
                     outputs=outputLayers)
 
-model.compile(optimizer=keras.optimizers.Adam,
+model.compile(optimizer=Adam(),
               loss=keras.losses.binary_crossentropy)
 
 def getAndSaveTrainingData(path, pbz2savePath):
@@ -40,13 +41,30 @@ def getAndSaveTrainingData(path, pbz2savePath):
 def fit(dataFile, epochs, batchSize):
     trainingData = trainingDataEditor.loadData(dataFile)
     X = []
-    y = []
-    for states, actions in trainingData:
-        X.append(states)
-        y.append(actions)
+    boosting = []
+    handbrake = []
+    jump = []
+    pitch = []
+    roll = []
+    steer = []
+    throttle = []
+    yaw = []
 
-    model.fit(X, {'boosting': y[0],'handbrake': y[1], 'jump': y[2], 'pitch': y[3], 'roll': y[4], 'steer': y[5], 'throttle': y[6], 'yaw': y[7]}, epochs=epochs, batch_size=batchSize)
+    print(type(trainingData))
+    for i in trainingData:
+        #print(len(i))
+        X.append(i[0])
+        boosting.append(i[1][0])
+        handbrake.append(i[1][1])
+        jump.append(i[1][2])
+        pitch.append(i[1][3])
+        roll.append(i[1][4])
+        steer.append(i[1][5])
+        throttle.append(i[1][6])
+        yaw.append(i[1][7])
+    print("Fiting!")
+    model.fit(X = {"input": X}, Y = {'boosting': boosting,'handbrake': handbrake, 'jump': jump, 'pitch': pitch, 'roll': roll, 'steer': steer, 'throttle': throttle, 'yaw': yaw}, epochs=epochs, batch_size=batchSize)
 
     model.save(f"models/{epochs}.{batchSize}-4×512.model")
-    
+
 #keras.utils.plot_model(model, 'model.png', show_shapes=True)

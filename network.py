@@ -13,22 +13,31 @@ tf.keras.backend.clear_session()
 
 outputs = ['boosting','handbrake','jump','pitch','roll','steer','throttle','yaw']
 
+print("Making model input")
 modelInput = keras.Input(shape=(93,), name='input')
 
+print("Adding layer 1")
 layer1 = layers.Dense(512, activation="relu")(modelInput)
+print("Adding layer 2")
 layer2 = layers.Dense(512, activation="relu")(layer1)
+print("Adding layer 3")
 layer3 = layers.Dense(512, activation="relu")(layer2)
+print("Adding layer 4")
 layer4 = layers.Dense(512, activation="relu")(layer3)
+
 
 outputLayers = []
 for out in outputs:
+    print(f"Adding output layer {out}")
     outputLayers.append(layers.Dense(1, activation="sigmoid", name=out)(layer4))
 
+print("Making model")
 model = keras.Model(inputs=modelInput,
                     outputs=outputLayers)
-
+print("Compileing model")
 model.compile(optimizer=Adam(),
-              loss=keras.losses.binary_crossentropy)
+              loss=keras.losses.binary_crossentropy,
+              metrics=["accuracy"])
 
 def getAndSaveTrainingData(path, pbz2savePath):
     x,y = trainingDataEditor.makeTrainingData(path, pbz2savePath)
@@ -51,8 +60,9 @@ def fit(dataFile, epochs, batchSize):
     yaw = []
 
     print(type(trainingData))
+    a = 0
     for i in trainingData:
-        #print(len(i))
+        print(type(i), type(i[1]), i[1])
         X.append(i[0])
         boosting.append(i[1][0])
         handbrake.append(i[1][1])
@@ -62,9 +72,13 @@ def fit(dataFile, epochs, batchSize):
         steer.append(i[1][5])
         throttle.append(i[1][6])
         yaw.append(i[1][7])
+        a += 1
+        if a >= 3:
+            break
+    print({'boosting': np.array(boosting),'handbrake': np.array(handbrake), 'jump': np.array(jump), 'pitch': np.array(pitch), 'roll': np.array(roll), 'steer': np.array(steer), 'throttle': np.array(throttle), 'yaw': np.array(yaw)})
     print("Fiting!")
-    model.fit(X = {"input": X}, Y = {'boosting': boosting,'handbrake': handbrake, 'jump': jump, 'pitch': pitch, 'roll': roll, 'steer': steer, 'throttle': throttle, 'yaw': yaw}, epochs=epochs, batch_size=batchSize)
+    model.fit(x = {"input": np.array(X)}, y = {'boosting': np.array(boosting),'handbrake': np.array(handbrake), 'jump': np.array(jump), 'pitch': np.array(pitch), 'roll': np.array(roll), 'steer': np.array(steer), 'throttle': np.array(throttle), 'yaw': np.array(yaw)}, epochs=epochs, batch_size=batchSize)
 
-    model.save(f"models/{epochs}.{batchSize}-4×512.model")
+    model.save(f"{epochs}.{batchSize}-4×512.model")
 
 #keras.utils.plot_model(model, 'model.png', show_shapes=True)

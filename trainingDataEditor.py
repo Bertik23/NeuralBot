@@ -5,6 +5,8 @@ import bz2
 import pickle
 import numpy as np
 from sklearn.preprocessing import normalize
+import time
+import multiprocessing
 
 trainingPlayer = "rev xD"
 
@@ -30,19 +32,43 @@ def makeTrainingData(replaysPath, savePath):
     return normalize(x), y
 
 def makeTrainingDataFromReplay(replay,savePath):
+    print(f"Creating data from {replay}")
+    if not os.path.isfile(f"""{savePath}/{f"{'.'.join(replay.split('.')[:-1])}.pbz2".split("/")[1]}"""):
+        try:
+            if replay.split(".")[-1] != "replay":
+                raise FileNotReplay
+            output = f"""{savePath}/{f"{'.'.join(replay.split('.')[:-1])}.pbz2".split("/")[1]}"""
+            startTime = time.time()
+            print(f"Parsing replay {replay}")
+            createTrainingData.createDataFromReplay(replay,output,"temp.json", save_json= True)
+            """parsing = multiprocessing.Process(target=createTrainingData.createDataFromReplay, args=(replay,output,"temp.json",))
+            parsing.fork()
+            parsing.join(300)
+            if parsing.is_alive():
+                print(f"Parsing replay {replay} took too long, was terminated.")
+
+                # Terminate
+                parsing.terminate()
+                parsing.join()
+            else:"""
+            print(f"Parsing replay {replay} took {time.time() - startTime} seconds")
+        except Exception as e:
+            print("===== FAILURE ======")
+            print(e, "\n"+replay)
+            print("====================")
     try:
-        if replay.split(".")[-1] != "replay":
-            raise FileNotReplay
-        output = f"{'.'.join(replay.split('.')[:-1])}.pbz2"
-        createTrainingData.createDataFromReplay(replay,output,"temp.json", save_json= True)
+        """while parsing.is_alive():
+            pass"""
+        return pbz2ToArray(replay)
     except Exception as e:
-        print("===== FAILURE ======")
-        print(e, "\n"+replay)
-        print("====================")
-    return pbz2ToArray(replay)
+            print("===== FAILURE ======")
+            print(e, "\n"+replay)
+            print("====================")
 
 def pbz2ToArray(replay):
-    with bz2.BZ2File(f"{'.'.join(replay.split('.')[:-1])}.pbz2","rb") as r:
+    startTime = time.time()
+    print(f"Arrayifying replay {replay}")
+    with bz2.BZ2File(f"""pbz2s/{f"{'.'.join(replay.split('.')[:-1])}.pbz2".split("/")[1]}""","rb") as r:
         rpl = pickle.load(r)
         x = []
         y = []
@@ -85,6 +111,7 @@ def pbz2ToArray(replay):
                     x[i].extend([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
                     #y[i].extend([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         
+        print(f"Arrayifying replay {replay} took {time.time() - startTime} seconds")
         return x, y
 
 def saveData(data, file, mode="wb"):

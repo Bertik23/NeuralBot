@@ -14,4 +14,4 @@ requests == 2.23.0
 sklearn == 0.0
 
 # D:\Python\NeuralBot\network.py: 3,5,6
-tensorflow == 2.5.2
+tensorflow == 2.5.3

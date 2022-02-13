@@ -5,7 +5,7 @@ carball == 0.6.36
 
 # D:\Python\NeuralBot\network.py: 1
 # D:\Python\NeuralBot\trainingDataEditor.py: 6
-numpy == 1.17.0
+numpy == 1.21.0
 
 # D:\Python\NeuralBot\downloadReplays.py: 1
 requests == 2.23.0

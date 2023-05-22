@@ -8,7 +8,7 @@ carball == 0.6.36
 numpy == 1.21.0
 
 # D:\Python\NeuralBot\downloadReplays.py: 1
-requests == 2.23.0
+requests == 2.31.0
 
 # D:\Python\NeuralBot\trainingDataEditor.py: 7
 sklearn == 0.0
